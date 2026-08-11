@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clima y Pronóstico - Río y Mar</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 15px; 
+            background-image: url('https://images.unsplash.com/photo-1518638150340-f706e86654de?q=80&w=1920');
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            background-attachment: fixed; 
+            color: #333;
+        }
+
+        .app-container { max-width: 600px; margin: 0 auto; padding-bottom: 30px; }
+
+        .back-link { margin-bottom: 15px; }
+        .back-link a { text-decoration: none; color: #fff; font-weight: bold; font-size: 14px; background: rgba(0, 0, 0, 0.5); padding: 8px 12px; border-radius: 6px; display: inline-block; }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .header-card { text-align: center; }
+        .logo-badge { font-size: 35px; margin-bottom: 5px; }
+        h1 { color: #0066cc; margin: 0; font-size: 20px; text-transform: uppercase; }
+
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #444; font-size: 14px; }
+        input[type="text"], input[type="date"] { 
+            width: 100%; padding: 12px; box-sizing: border-box; 
+            border: 1px solid #ccc; border-radius: 8px; 
+            background: #fff; font-size: 16px; margin-bottom: 15px;
+        }
+
+        .btn-search { 
+            background: #d35400; color: white; border: none; 
+            padding: 15px; width: 100%; border-radius: 8px; 
+            font-size: 16px; cursor: pointer; font-weight: bold;
+            text-transform: uppercase; transition: background 0.3s;
+        }
+        .btn-search:hover { background: #e67e22; }
+
+        #resultadosContainer { display: none; margin-top: 20px; }
+
+        .foto-lugar { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
+        .info-title { color: #166534; font-size: 18px; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        .info-list p { margin: 8px 0; font-size: 14px; line-height: 1.4; }
+        .info-list strong { color: #166534; }
+
+        /* Estilo para los ítems con enlace a Maps */
+        .lugares-cercanos { list-style: none; padding: 0; margin: 0; }
+        .lugares-cercanos li { background: #f8f9fa; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #27ae60; overflow: hidden; font-size: 14px; }
+        .lugares-cercanos a { display: block; padding: 12px; color: #2c3e50; text-decoration: none; transition: background 0.2s; }
+        .lugares-cercanos a:hover { background: #e8f8f5; color: #27ae60; }
+
+        .clima-panel { background: #eef2f7; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .clima-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
+        .clima-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        
+        .marea-box { background: #d0ebff; color: #004488; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 13px; margin-top: 10px; text-align: center; }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="back-link"><a href="index.html">⬅ Volver al Menú</a></div>
+
+    <div class="card header-card">
+        <div class="logo-badge">🐟 🌤️</div>
+        <h1>Planifica tu Salida</h1>
+    </div>
+
+    <div class="card">
+        <label for="txtBuscador">¿Dónde vas a pescar? (Ciudad o Pesquero)</label>
+        <input type="text" id="txtBuscador" placeholder="Ej: Santa Teresita, Recreo Keidel, Colón...">
+
+        <label for="txtFecha">¿Cuándo vas a pescar?</label>
+        <input type="date" id="txtFecha">
+
+        <button class="btn-search" onclick="buscarLugar()">Buscar Clima e Información</button>
+    </div>
+
+    <div id="resultadosContainer">
+        <div class="card" id="cardInfoLugar">
+            <img id="imgLugar" class="foto-lugar" style="display: none;" alt="Foto del lugar">
+            <h2 class="info-title" id="tituloLugar">Información del Lugar</h2>
+            <div id="contenidoLugar" class="info-list"></div>
+        </div>
+
+        <div class="card">
+            <h2 class="info-title">Pronóstico para el <span id="lblFechaElegida">día elegido</span></h2>
+            <div class="clima-panel">
+                <div class="clima-row"><span>Estado:</span> <strong id="valEstado">--</strong></div>
+                <div class="clima-row"><span>Temperatura:</span> <strong id="valTemp">--</strong></div>
+                <div class="clima-row"><span>Viento:</span> <strong id="valViento">--</strong></div>
+                <div class="clima-row"><span>Probabilidad de Pique:</span> <strong id="valPique">--</strong></div>
+            </div>
+            
+            <div id="boxMareas" class="marea-box" style="display: none;">
+                🌊 Mareas: <span id="valMareas"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('txtFecha').valueAsDate = new Date();
+
+    const baseDeDatos = {
+        "recreo keidel": {
+            tipo: "pesquero",
+            nombre: "Recreo Keidel - Zárate",
+            foto: "https://images.unsplash.com/photo-1544281313-258dc2e6b9a8?q=80&w=800",
+            datos: `
+                <p><strong>Dirección:</strong> 📍 ex Ruta 12 km 110, Zárate</p>
+                <p><strong>Estacionamiento:</strong> Sí</p>
+                <p><strong>Baños:</strong> Sí</p>
+                <p><strong>Horario:</strong> A partir de 6hs para pasar el día</p>
+                <p><strong>Carnada:</strong> Solo envasadas</p>
+                <p><strong>Instagram:</strong> 📷 @recreokeidel</p>
+                <p><strong>Administración:</strong> 💬 3487-470576</p>
+                <p><strong>Observaciones:</strong> Camping familiar con pileta, bajada de lanchas, alquiler de cabañas y kayaks. Muelle de pesca de 300mts.</p>
+            `,
+            clima: { estado: "Parcialmente Nublado", temp: "14°C / 8°C", viento: "15 km/h (SE)", pique: "Bueno" },
+            mareas: null
+        },
+        "colon": {
+            tipo: "ciudad",
+            nombre: "Colón, Provincia de Entre Ríos",
+            foto: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?q=80&w=800",
+            datos: `
+                <p style="margin-bottom: 10px;">Hacé clic en cualquier punto para buscarlo en Google Maps:</p>
+                <ul class="lugares-cercanos">
+                    <li><a href="https://maps.google.com/?q=Costanera+Norte+Colon+Entre+Rios" target="_blank">🎣 <strong>Costanera Norte:</strong> Pesca variada de costa 📍</a></li>
+                    <li><a href="https://maps.google.com/?q=Puerto+Colon+Entre+Rios" target="_blank">🚤 <strong>Zona Puerto:</strong> Salidas embarcadas y doradillos 📍</a></li>
+                    <li><a href="https://maps.google.com/?q=Reserva+Sur+Colon+Entre+Rios" target="_blank">🏕️ <strong>Reserva Sur:</strong> Pesca de fondo tranquila 📍</a></li>
+                </ul>
+            `,
+            clima: { estado: "Despejado y Soleado", temp: "18°C / 10°C", viento: "8 km/h (Norte)", pique: "Excelente" },
+            mareas: null
+        },
+        "mar del plata": {
+            tipo: "ciudad",
+            nombre: "Mar del Plata, Buenos Aires",
+            foto: "https://images.unsplash.com/photo-1585208643038-09593f0b2f63?q=80&w=800",
+            datos: `
+                <p style="margin-bottom: 10px;">Hacé clic en cualquier punto para buscarlo en Google Maps:</p>
+                <ul class="lugares-cercanos">
+                    <li><a href="https://maps.google.com/?q=Escollera+Norte+Mar+del+Plata" target="_blank">🎣 <strong>Escollera Norte y Sur:</strong> Pejerrey y corvina 📍</a></li>
+                    <li><a href="https://maps.google.com/?q=Club+de+Pesca+Mar+del+Plata" target="_blank">🌉 <strong>Club de Pesca (Centro):</strong> Muelle tradicional 📍</a></li>
+                </ul>
+            `,
+            clima: { estado: "Inestable / Viento Fuerte", temp: "11°C / 5°C", viento: "35 km/h (Sur)", pique: "Regular" },
+            mareas: "Pleamar: 08:30hs (1.8m) / Bajamar: 14:45hs (0.4m)"
+        }
+    };
+
+    function buscarLugar() {
+        let inputTexto = document.getElementById('txtBuscador').value.toLowerCase().trim();
+        const inputFecha = document.getElementById('txtFecha').value;
+        const contenedor = document.getElementById('resultadosContainer');
+        
+        const imgLugar = document.getElementById('imgLugar');
+        const tituloLugar = document.getElementById('tituloLugar');
+        const contenidoLugar = document.getElementById('contenidoLugar');
+        const boxMareas = document.getElementById('boxMareas');
+        const valMareas = document.getElementById('valMareas');
+
+        const fechaObj = new Date(inputFecha + 'T00:00:00'); 
+        const opcionesFecha = { weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('lblFechaElegida').innerText = fechaObj.toLocaleDateString('es-ES', opcionesFecha);
+
+        let data = baseDeDatos[inputTexto];
+
+        // SI NO ESTÁ EN LA LISTA, GENERAMOS LA FICHA AUTOMÁTICA CON ENLACES DINÁMICOS A MAPS
+        if (!data) {
+            const esCosta = inputTexto.includes("bernardo") || inputTexto.includes("gesell") || inputTexto.includes("pinamar") || inputTexto.includes("clemente") || inputTexto.includes("necochea") || inputTexto.includes("teresita") || inputTexto.includes("partido de la costa") || inputTexto.includes("playa");
+
+            const queryLugar = encodeURIComponent(inputTexto);
+
+            data = {
+                nombre: inputTexto.toUpperCase(),
+                foto: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800",
+                datos: `
+                    <p style="margin-bottom: 10px;">Puntos de referencia en <strong>${inputTexto.toUpperCase()}</strong> (Tocá para abrir en Maps):</p>
+                    <ul class="lugares-cercanos">
+                        <li><a href="https://maps.google.com/?q=Zona+de+costa+y+playas+${queryLugar}" target="_blank">🎣 <strong>Zona de Costa / Playas habilitadas:</strong> Pesca deportiva local 📍</a></li>
+                        <li><a href="https://maps.google.com/?q=Escolleras+y+muelles+${queryLugar}" target="_blank">📍 <strong>Escolleras y Muelles principales:</strong> Puntos clave de pesca 📍</a></li>
+                        <li><a href="https://maps.google.com/?q=Bajada+nautica+${queryLugar}" target="_blank">🛶 <strong>Bajadas náuticas y rías cercanas:</strong> Accesos para embarcaciones 📍</a></li>
+                    </ul>
+                `,
+                clima: { 
+                    estado: "Buen tiempo general / Viento moderado", 
+                    temp: "15°C / 9°C", 
+                    viento: "16 km/h (E)", 
+                    pique: "Bueno según condiciones" 
+                },
+                mareas: esCosta ? "Pleamar: 09:15hs (1.6m) / Bajamar: 15:30hs (0.5m)" : null
+            };
+        }
+
+        tituloLugar.innerText = data.nombre;
+        contenidoLugar.innerHTML = data.datos;
+        
+        if (data.foto) {
+            imgLugar.src = data.foto;
+            imgLugar.style.display = "block";
+        } else {
+            imgLugar.style.display = "none";
+        }
+
+        document.getElementById('valEstado').innerText = data.clima.estado;
+        document.getElementById('valTemp').innerText = data.clima.temp;
+        document.getElementById('valViento').innerText = data.clima.viento;
+        document.getElementById('valPique').innerText = data.clima.pique;
+
+        if (data.mareas) {
+            valMareas.innerText = data.mareas;
+            boxMareas.style.display = "block";
+        } else {
+            boxMareas.style.display = "none";
+        }
+
+        contenedor.style.display = "block";
+    }
+</script>
+
+</body>
+</html>
