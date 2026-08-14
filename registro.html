@@ -107,13 +107,11 @@
             </select>
         </div>
 
-        <!-- NUEVO: LUGAR DE PESCA ESPECÍFICO -->
         <div class="form-group">
             <label for="lugarPesca">Lugar de Pesca:</label>
             <input type="text" id="lugarPesca" placeholder="Ej: El Remanso, Chascomús, Paraná...">
         </div>
 
-        <!-- NUEVO: MODALIDAD -->
         <div class="form-group">
             <label for="modalidad">Modalidad:</label>
             <select id="modalidad">
@@ -155,8 +153,8 @@
     </div>
 
     <div class="history-card">
-        <h3>Historial de Capturas:</h3>
-        <div class="list" id="listaCapturas"></div>
+        <h3>Historial de Capturas (Comunidad):</h3>
+        <div class="list" id="listaCapturas">Cargando capturas desde la nube...</div>
     </div>
 
     <footer>
@@ -164,10 +162,27 @@
     </footer>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", cargarHistorial);
+<!-- SCRIPTS DE FIREBASE -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    function guardarCaptura() {
+    // Configuración de tu Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyB05r0eiW8DKSIjGMcrf7RnZPnJ107f6c",
+        authDomain: "tulugardepesca.firebaseapp.com",
+        projectId: "tulugardepesca",
+        storageBucket: "tulugardepescaloss.appspot.com",
+        messagingSenderId: "473732595896",
+        appId: "1:473732595896:web:91e57ac0a93a006e2b44d",
+        measurementId: "G-832M0QN524"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Hacer funciones accesibles globalmente para los botones HTML
+    window.guardarCaptura = async function() {
         const zona = document.getElementById('zona').value;
         const lugarPesca = document.getElementById('lugarPesca').value;
         const modalidad = document.getElementById('modalidad').value;
@@ -184,65 +199,79 @@
 
         if (fotoInput.files && fotoInput.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                registrarObjeto(zona, lugarPesca, modalidad, especie, tamano, carnada, destino, e.target.result);
+            reader.onload = async function(e) {
+                await subirAFirebase(zona, lugarPesca, modalidad, especie, tamano, carnada, destino, e.target.result);
             }
             reader.readAsDataURL(fotoInput.files[0]);
         } else {
-            registrarObjeto(zona, lugarPesca, modalidad, especie, tamano, carnada, destino, '');
+            await subirAFirebase(zona, lugarPesca, modalidad, especie, tamano, carnada, destino, '');
         }
     }
 
-    function registrarObjeto(zona, lugarPesca, modalidad, especie, tamano, carnada, destino, imagenSrc) {
-        const nuevaCaptura = { zona, lugarPesca, modalidad, especie, tamano, carnada, destino, imagenSrc };
-        
-        let capturas = JSON.parse(localStorage.getItem('misCapturasDePesca')) || [];
-        capturas.unshift(nuevaCaptura);
-        
-        localStorage.setItem('misCapturasDePesca', JSON.stringify(capturas));
-
-        cargarHistorial();
-        document.getElementById('lugarPesca').value = '';
-        document.getElementById('especie').value = '';
-        document.getElementById('tamano').value = '';
-        document.getElementById('carnada').value = '';
-        document.getElementById('foto').value = '';
+    async function subirAFirebase(zona, lugarPesca, modalidad, especie, tamano, carnada, destino, imagenSrc) {
+        try {
+            await addDoc(collection(db, "capturas"), {
+                zona, lugarPesca, modalidad, especie, tamano, carnada, destino, imagenSrc,
+                fecha: new Date()
+            });
+            alert('¡Captura registrada con éxito en la nube!');
+            document.getElementById('lugarPesca').value = '';
+            document.getElementById('especie').value = '';
+            document.getElementById('tamano').value = '';
+            document.getElementById('carnada').value = '';
+            document.getElementById('foto').value = '';
+            cargarHistorial();
+        } catch (e) {
+            console.error("Error al guardar: ", e);
+            alert('Hubo un error al guardar la captura.');
+        }
     }
 
-    function cargarHistorial() {
+    async function cargarHistorial() {
         const lista = document.getElementById('listaCapturas');
-        lista.innerHTML = '';
+        lista.innerHTML = 'Cargando...';
         
-        let capturas = JSON.parse(localStorage.getItem('misCapturasDePesca')) || [];
+        try {
+            const q = query(collection(db, "capturas"));
+            const querySnapshot = await getDocs(q);
+            
+            lista.innerHTML = '';
+            if (querySnapshot.empty) {
+                lista.innerHTML = '<p style="color: #666; text-align: center;">No hay capturas registradas todavía.</p>';
+                return;
+            }
 
-        if (capturas.length === 0) {
-            lista.innerHTML = '<p style="color: #666; text-align: center;">No hay capturas registradas todavía.</p>';
-            return;
+            querySnapshot.forEach((doc) => {
+                const c = doc.data();
+                const nuevoItem = document.createElement('div');
+                nuevoItem.className = 'item';
+                
+                let textoLugar = c.lugarPesca ? `<strong>Lugar:</strong> ${c.lugarPesca} <br>` : '';
+                let textoModalidad = c.modalidad ? `<strong>Modalidad:</strong> ${c.modalidad} <br>` : '';
+                let textoTamano = c.tamano ? `<strong>Tamaño:</strong> ${c.tamano} cm <br>` : '';
+                
+                nuevoItem.innerHTML = `
+                    ${c.imagenSrc ? `<img src="${c.imagenSrc}" alt="Foto">` : ''}
+                    <div class="item-text">
+                        <strong>Ambiente:</strong> ${c.zona} <br> 
+                        ${textoLugar}
+                        ${textoModalidad}
+                        <strong>Especie:</strong> ${c.especie} <br> 
+                        ${textoTamano}
+                        <strong>Carnada:</strong> ${c.carnada} <br> 
+                        <strong>Destino:</strong> ${c.destino}
+                    </div>`;
+                
+                lista.appendChild(nuevoItem);
+            });
+        } catch (e) {
+            console.error("Error al cargar historial: ", e);
+            lista.innerHTML = '<p style="color: red; text-align: center;">Error al cargar las capturas de la nube.</p>';
         }
-
-        capturas.forEach(c => {
-            const nuevoItem = document.createElement('div');
-            nuevoItem.className = 'item';
-            
-            let textoLugar = c.lugarPesca ? `<strong>Lugar:</strong> ${c.lugarPesca} <br>` : '';
-            let textoModalidad = c.modalidad ? `<strong>Modalidad:</strong> ${c.modalidad} <br>` : '';
-            let textoTamano = c.tamano ? `<strong>Tamaño:</strong> ${c.tamano} cm <br>` : '';
-            
-            nuevoItem.innerHTML = `
-                ${c.imagenSrc ? `<img src="${c.imagenSrc}" alt="Foto">` : ''}
-                <div class="item-text">
-                    <strong>Ambiente:</strong> ${c.zona} <br> 
-                    ${textoLugar}
-                    ${textoModalidad}
-                    <strong>Especie:</strong> ${c.especie} <br> 
-                    ${textoTamano}
-                    <strong>Carnada:</strong> ${c.carnada} <br> 
-                    <strong>Destino:</strong> ${c.destino}
-                </div>`;
-            
-            lista.appendChild(nuevoItem);
-        });
     }
+
+    // Cargar al abrir la página
+    cargarHistorial();
 </script>
 
 </body>
