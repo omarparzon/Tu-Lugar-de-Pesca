@@ -16,11 +16,7 @@
             background-attachment: fixed; 
         }
 
-        .app-container { 
-            max-width: 650px; 
-            margin: 0 auto; 
-            padding: 10px; 
-        }
+        .app-container { max-width: 650px; margin: 0 auto; padding: 10px; }
 
         .header-card {
             background: rgba(255, 255, 255, 0.95);
@@ -31,17 +27,9 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        .logo-badge {
-            font-size: 45px;
-            margin-bottom: 5px;
-        }
+        .logo-badge { font-size: 45px; margin-bottom: 5px; }
 
-        h1 { 
-            color: #0066cc; 
-            margin: 0; 
-            font-size: 24px; 
-            text-transform: uppercase; 
-        }
+        h1 { color: #0066cc; margin: 0; font-size: 24px; text-transform: uppercase; }
         .slogan { font-size: 14px; color: #555; font-weight: bold; margin-top: 5px; }
 
         .form-card { 
@@ -103,7 +91,6 @@
 </div>
 
 <div class="app-container">
-    
     <div class="header-card">
         <div class="logo-badge">🐟 🌊 🎣</div>
         <h1>Registro de Pesca</h1>
@@ -112,19 +99,35 @@
 
     <div class="form-card">
         <div class="form-group">
-            <label for="zona">¿Dónde vas a pescar?</label>
+            <label for="zona">Ambiente:</label>
             <select id="zona">
                 <option value="Río">Río</option>
                 <option value="Mar">Mar</option>
+                <option value="Laguna">Laguna</option>
+            </select>
+        </div>
+
+        <!-- NUEVO: LUGAR DE PESCA ESPECÍFICO -->
+        <div class="form-group">
+            <label for="lugarPesca">Lugar de Pesca:</label>
+            <input type="text" id="lugarPesca" placeholder="Ej: El Remanso, Chascomús, Paraná...">
+        </div>
+
+        <!-- NUEVO: MODALIDAD -->
+        <div class="form-group">
+            <label for="modalidad">Modalidad:</label>
+            <select id="modalidad">
+                <option value="Costa">Costa</option>
+                <option value="Muelle">Muelle</option>
+                <option value="Embarcado">Embarcado</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="especie">Especie / Pieza:</label>
-            <input type="text" id="especie" placeholder="Ej: Dorado, Surubí...">
+            <input type="text" id="especie" placeholder="Ej: Dorado, Surubí, Pejerrey...">
         </div>
 
-        <!-- Nuevo campo agregado: Tamaño en cm -->
         <div class="form-group">
             <label for="tamano">Tamaño (cm):</label>
             <input type="number" id="tamano" placeholder="Ej: 75">
@@ -132,7 +135,7 @@
 
         <div class="form-group">
             <label for="carnada">Carnada Utilizada:</label>
-            <input type="text" id="carnada" placeholder="Ej: Morena, Artificial...">
+            <input type="text" id="carnada" placeholder="Ej: Morena, Maíz, Artificial...">
         </div>
 
         <div class="form-group">
@@ -157,15 +160,19 @@
     </div>
 
     <footer>
-        <p><strong>C.A.T.Ser</strong> (Centro de Asistencia Técnica y Servicio) &bull; <strong>Tecnofotos</strong> | Todos los derechos reservados © 2026</p>
+        <p><strong>C.A.T.Ser</strong> &bull; <strong>Tecnofotos</strong> | Todos los derechos reservados © 2026</p>
     </footer>
 </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", cargarHistorial);
+
     function guardarCaptura() {
         const zona = document.getElementById('zona').value;
+        const lugarPesca = document.getElementById('lugarPesca').value;
+        const modalidad = document.getElementById('modalidad').value;
         const especie = document.getElementById('especie').value;
-        const tamano = document.getElementById('tamano').value; // Capturamos el tamaño
+        const tamano = document.getElementById('tamano').value;
         const carnada = document.getElementById('carnada').value;
         const destino = document.getElementById('destino').value;
         const fotoInput = document.getElementById('foto');
@@ -175,42 +182,66 @@
             return;
         }
 
-        let imagenSrc = '';
         if (fotoInput.files && fotoInput.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                imagenSrc = e.target.result;
-                agregarAlHistorial(zona, especie, tamano, carnada, destino, imagenSrc);
+                registrarObjeto(zona, lugarPesca, modalidad, especie, tamano, carnada, destino, e.target.result);
             }
             reader.readAsDataURL(fotoInput.files[0]);
         } else {
-            agregarAlHistorial(zona, especie, tamano, carnada, destino, '');
+            registrarObjeto(zona, lugarPesca, modalidad, especie, tamano, carnada, destino, '');
         }
     }
 
-    function agregarAlHistorial(zona, especie, tamano, carnada, destino, imagenSrc) {
-        const lista = document.getElementById('listaCapturas');
-        const nuevoItem = document.createElement('div');
-        nuevoItem.className = 'item';
+    function registrarObjeto(zona, lugarPesca, modalidad, especie, tamano, carnada, destino, imagenSrc) {
+        const nuevaCaptura = { zona, lugarPesca, modalidad, especie, tamano, carnada, destino, imagenSrc };
         
-        let contenidoHtml = '';
-        if (imagenSrc) {
-            contenidoHtml += `<img src="${imagenSrc}" alt="Foto de pesca">`;
-        }
+        let capturas = JSON.parse(localStorage.getItem('misCapturasDePesca')) || [];
+        capturas.unshift(nuevaCaptura);
         
-        // Armamos el texto incluyendo el tamaño en cm (si lo completó)
-        let textoTamano = tamano ? `<strong>Tamaño:</strong> ${tamano} cm <br>` : '';
-        
-        contenidoHtml += `<div class="item-text"><strong>Zona:</strong> ${zona} <br> <strong>Especie:</strong> ${especie} <br> ${textoTamano} <strong>Carnada:</strong> ${carnada} <br> <strong>Destino:</strong> ${destino}</div>`;
+        localStorage.setItem('misCapturasDePesca', JSON.stringify(capturas));
 
-        nuevoItem.innerHTML = contenidoHtml;
-        lista.prepend(nuevoItem);
-
-        // Limpiamos los campos
+        cargarHistorial();
+        document.getElementById('lugarPesca').value = '';
         document.getElementById('especie').value = '';
         document.getElementById('tamano').value = '';
         document.getElementById('carnada').value = '';
         document.getElementById('foto').value = '';
+    }
+
+    function cargarHistorial() {
+        const lista = document.getElementById('listaCapturas');
+        lista.innerHTML = '';
+        
+        let capturas = JSON.parse(localStorage.getItem('misCapturasDePesca')) || [];
+
+        if (capturas.length === 0) {
+            lista.innerHTML = '<p style="color: #666; text-align: center;">No hay capturas registradas todavía.</p>';
+            return;
+        }
+
+        capturas.forEach(c => {
+            const nuevoItem = document.createElement('div');
+            nuevoItem.className = 'item';
+            
+            let textoLugar = c.lugarPesca ? `<strong>Lugar:</strong> ${c.lugarPesca} <br>` : '';
+            let textoModalidad = c.modalidad ? `<strong>Modalidad:</strong> ${c.modalidad} <br>` : '';
+            let textoTamano = c.tamano ? `<strong>Tamaño:</strong> ${c.tamano} cm <br>` : '';
+            
+            nuevoItem.innerHTML = `
+                ${c.imagenSrc ? `<img src="${c.imagenSrc}" alt="Foto">` : ''}
+                <div class="item-text">
+                    <strong>Ambiente:</strong> ${c.zona} <br> 
+                    ${textoLugar}
+                    ${textoModalidad}
+                    <strong>Especie:</strong> ${c.especie} <br> 
+                    ${textoTamano}
+                    <strong>Carnada:</strong> ${c.carnada} <br> 
+                    <strong>Destino:</strong> ${c.destino}
+                </div>`;
+            
+            lista.appendChild(nuevoItem);
+        });
     }
 </script>
 
