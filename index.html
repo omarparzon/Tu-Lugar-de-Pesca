@@ -32,7 +32,6 @@
         .event-item a { color: #0066cc; text-decoration: none; font-weight: bold; }
         .event-item a:hover { text-decoration: underline; }
         
-        /* Estilos para el recomendador y la lupa */
         select.recomendador-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 12px; background: #fff; }
         .resultado-carnada { background: #eef2f7; padding: 12px; border-radius: 8px; border-left: 5px solid #0066cc; font-size: 14px; color: #333; }
     </style>
@@ -89,7 +88,7 @@
         </div>
     </div>
 
-    <!-- NUEVO: LUPA / CÁMARA PARA IDENTIFICAR ESPECIE EN LA PRINCIPAL -->
+    <!-- LUPA / CÁMARA PARA IDENTIFICAR ESPECIE -->
     <div class="widget-card">
         <h3>🔍 Identificar Especie por Foto (Lupa)</h3>
         <p style="font-size: 14px; color: #555; margin-top: 0;">Sacale una foto a tu captura con la cámara para identificarla y pasarla al registro:</p>
@@ -161,7 +160,6 @@
 </div>
 
 <script>
-    // Base de datos completa de carnadas (Río y Mar Argentino)
     const baseCarnadas = {
         dorado: "👉 <strong>Carnada recomendada:</strong> Vivo (Morena mediana/grande), cascarudo o señuelos de paleta media / superficie.",
         surubi: "👉 <strong>Carnada recomendada:</strong> Gurí, sabalito entero, paty de tamaño mediano o carnada blanca pesada al golpe.",
@@ -196,7 +194,6 @@
             lector.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    // Creamos un lienzo (canvas) para achicar la imagen y que no gaste memoria
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 800;
                     const MAX_HEIGHT = 800;
@@ -220,10 +217,8 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Convertimos la foto comprimida a formato liviano
                     const fotoComprimida = canvas.toDataURL('image/jpeg', 0.7);
 
-                    // Mostramos la vista previa sin saturar el celu
                     document.getElementById('imagenIdentificada').src = fotoComprimida;
                     document.getElementById('textoResultadoIdentificacion').innerHTML = "✨ ¡Foto optimizada y lista para registrar!";
                     document.getElementById('vistaPreviaIdentificacion').style.display = 'block';
@@ -233,3 +228,7 @@
             lector.readAsDataURL(archivo);
         }
     }
+</script>
+
+</body>
+</html>
