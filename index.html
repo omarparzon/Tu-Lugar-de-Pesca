@@ -58,16 +58,31 @@
         🚗🛣️ Consultar Estado de Rutas y Tráfico en Vivo (Google Maps)
     </a>
 
-    <!-- NUEVO: RECOMENDADOR DE CARNADAS POR ESPECIE -->
+    <!-- RECOMENDADOR DE CARNADAS POR ESPECIE (ACTUALIZADO CON RÍO Y MAR) -->
     <div class="widget-card">
         <h3>🎯 ¿Qué vas a pescar? (Recomendador de Carnada)</h3>
         <label for="especieSelect" style="font-size: 14px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;">Seleccioná la especie objetivo:</label>
         <select id="especieSelect" class="recomendador-select" onchange="actualizarCarnada()">
-            <option value="dorado">Dorado</option>
-            <option value="surubi">Surubí</option>
-            <option value="pejerrey">Pejerrey</option>
-            <option value="tarucha">Tarucha (Tararira)</option>
-            <option value="boga">Boga</option>
+            <optgroup label="Agua Dulce (Río / Laguna)">
+                <option value="dorado">Dorado</option>
+                <option value="surubi">Surubí</option>
+                <option value="pejerrey">Pejerrey</option>
+                <option value="tarucha">Tarucha (Tararira)</option>
+                <option value="boga">Boga</option>
+                <option value="pacu">Pacú</option>
+                <option value="pati">Patí</option>
+                <option value="bagre">Bagre</option>
+            </optgroup>
+            <optgroup label="Mar Argentino">
+                <option value="corvinarubia">Corvina Rubia</option>
+                <option value="corvinanegra">Corvina Negra</option>
+                <option value="lenguado">Lenguado</option>
+                <option value="pezlimon">Pez Limón</option>
+                <option value="salmon">Salmón de Mar</option>
+                <option value="brotola">Brótola</option>
+                <option value="cazon">Cazón</option>
+                <option value="anchoa">Anchoa de Banco</option>
+            </optgroup>
         </select>
         <div id="resultadoCarnada" class="resultado-carnada">
             👉 <strong>Carnada recomendada:</strong> Vivo (Morena mediana o grande) y señuelos de media agua.
@@ -128,13 +143,24 @@
 </div>
 
 <script>
-    // Base de datos de carnadas y consejos para el recomendador
+    // Base de datos completa de carnadas (Río y Mar Argentino)
     const baseCarnadas = {
         dorado: "👉 <strong>Carnada recomendada:</strong> Vivo (Morena mediana/grande), cascarudo o señuelos de paleta media / superficie.",
         surubi: "👉 <strong>Carnada recomendada:</strong> Gurí, sabalito entero, paty de tamaño mediano o carnada blanca pesada al golpe.",
-        pejerrey: "👉 <strong>Carnada recomendada:</strong> Mojarra viva, dientudo desflecado, camarón o pasta / flocie con línea de flote.",
-        tarucha: "👉 <strong>Carnada recomendada:</strong> Bajada de rana viva, filet de dientudo, carnada blanca o señuelos anti-gancho (superficie/medias agua).",
-        boga: "👉 <strong>Carnada recomendada:</strong> Maíz fermentado, masa artesanal, corazón vacuno en cubitos o pasta dulce."
+        pejerrey: "👉 <strong>Carnada recomendada:</strong> Mojarra viva, dientudo desflecado, camarón o pasta / flote con línea de flote.",
+        tarucha: "👉 <strong>Carnada recomendada:</strong> Bajada de rana viva, filet de dientudo, carnada blanca o señuelos anti-gancho (superficie/media agua).",
+        boga: "👉 <strong>Carnada recomendada:</strong> Maíz fermentado, masa artesanal, corazón vacuno en cubitos o pasta dulce.",
+        pacu: "👉 <strong>Carnada recomendada:</strong> Frutos de estación (timbo, banana), maíz o masa dulce cerca de árboles inundados.",
+        pati: "👉 <strong>Carnada recomendada:</strong> Carnada blanda y olorosa (tripa de pollo, hígado o trozo de sábalo) al fondo.",
+        bagre: "👉 <strong>Carnada recomendada:</strong> Lombriz, masitas o pedazos de sábalo al ras del fondo.",
+        corvinarubia: "👉 <strong>Carnada recomendada:</strong> Langostino entero, camarón o almeja pescando desde la costa con tiro largo.",
+        corvinanegra: "👉 <strong>Carnada recomendada:</strong> Cangrejo vivo o navaja, ideal para pozones con marea creciente.",
+        lenguado: "👉 <strong>Carnada recomendada:</strong> Pejerrey vivo o filet muy fresco usando spinning o flote al acecho.",
+        pezlimon: "👉 <strong>Carnada recomendada:</strong> Embarcado con trolling o carnada viva (caballa/macha) cerca de piedras.",
+        salmon: "👉 <strong>Carnada recomendada:</strong> Embarcado profundo sobre canto rodado. Calamar, anchoa o langostino.",
+        brotola: "👉 <strong>Carnada recomendada:</strong> Pesca nocturna o en muelles con tiras de calamarete o anchoa.",
+        cazon: "👉 <strong>Carnada recomendada:</strong> Cabeza o lomo de caballa/pinto (recordar devolución obligatoria).",
+        anchoa: "👉 <strong>Carnada recomendada:</strong> Spinning costero con cucharillas pesadas o boya barrilete."
     };
 
     function actualizarCarnada() {
