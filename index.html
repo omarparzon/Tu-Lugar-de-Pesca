@@ -1,7 +1,98 @@
-<!-- NUEVO: BUSCADOR / LUPA CON CÁMARA PARA IDENTIFICAR ESPECIE -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script>
+        // Validación obligatoria de Términos y Condiciones
+        if (!localStorage.getItem('terminosAceptados')) {
+            window.location.href = 'terminos.html';
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Lugar de Pesca - Menú Principal</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+        .app-container { max-width: 650px; margin: 0 auto; }
+        .header-card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .logo-badge { font-size: 45px; margin-bottom: 5px; }
+        h1 { color: #0066cc; margin: 0; font-size: 24px; text-transform: uppercase; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .menu-btn { background: white; padding: 20px; border-radius: 15px; text-align: center; text-decoration: none; color: #333; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .menu-btn:hover { background: #eef2f7; }
+        .menu-btn-full { background: white; padding: 15px; border-radius: 15px; text-align: center; text-decoration: none; color: #333; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; display: block; }
+        .menu-btn-full:hover { background: #eef2f7; }
+        .widget-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .widget-card h3 { color: #166534; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+        .section-title { 
+            color: #0066cc; font-size: 20px; margin: 25px 0 15px 5px; font-weight: bold; 
+            display: flex; align-items: center; gap: 12px; 
+        }
+        .event-item { font-size: 14px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .event-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .event-item a { color: #0066cc; text-decoration: none; font-weight: bold; }
+        .event-item a:hover { text-decoration: underline; }
+        
+        /* Estilos para el recomendador y la lupa */
+        select.recomendador-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 12px; background: #fff; }
+        .resultado-carnada { background: #eef2f7; padding: 12px; border-radius: 8px; border-left: 5px solid #0066cc; font-size: 14px; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <div class="header-card">
+        <div class="logo-badge">🐟 🌊 🎣</div>
+        <h1>TU LUGAR DE PESCA</h1>
+        <div style="font-size: 14px; color: #555; margin-top: 5px;">La comunidad de pescadores deportivos</div>
+    </div>
+
+    <!-- BOTONES PRINCIPALES ARRIBA -->
+    <div class="menu-grid">
+        <a href="registro.html" class="menu-btn">📸<br>Registrar Captura</a>
+        <a href="clima.html" class="menu-btn">🌦️<br>Pronóstico del clima en tu lugar de pesca</a>
+    </div>
+
+    <!-- BOTÓN: ESTADO DE RUTAS Y TRÁFICO -->
+    <a href="https://www.google.com/maps/@-34.6037,-58.3816,11z/data=!5m1!1e1" target="_blank" class="menu-btn-full">
+        🚗🛣️ Consultar Estado de Rutas y Tráfico en Vivo (Google Maps)
+    </a>
+
+    <!-- RECOMENDADOR DE CARNADAS POR ESPECIE (RÍO Y MAR) -->
     <div class="widget-card">
-        <h3>🔍 Identificar Especie por Foto</h3>
-        <p style="font-size: 14px; color: #555; margin-top: 0;">Sacale una foto a tu captura con la lupa para identificarla y registrarla:</p>
+        <h3>🎯 ¿Qué vas a pescar? (Recomendador de Carnada)</h3>
+        <label for="especieSelect" style="font-size: 14px; font-weight: bold; color: #444; display: block; margin-bottom: 5px;">Seleccioná la especie objetivo:</label>
+        <select id="especieSelect" class="recomendador-select" onchange="actualizarCarnada()">
+            <optgroup label="Agua Dulce (Río / Laguna)">
+                <option value="dorado">Dorado</option>
+                <option value="surubi">Surubí</option>
+                <option value="pejerrey">Pejerrey</option>
+                <option value="tarucha">Tarucha (Tararira)</option>
+                <option value="boga">Boga</option>
+                <option value="pacu">Pacú</option>
+                <option value="pati">Patí</option>
+                <option value="bagre">Bagre</option>
+            </optgroup>
+            <optgroup label="Mar Argentino">
+                <option value="corvinarubia">Corvina Rubia</option>
+                <option value="corvinanegra">Corvina Negra</option>
+                <option value="lenguado">Lenguado</option>
+                <option value="pezlimon">Pez Limón</option>
+                <option value="salmon">Salmón de Mar</option>
+                <option value="brotola">Brótola</option>
+                <option value="cazon">Cazón</option>
+                <option value="anchoa">Anchoa de Banco</option>
+            </optgroup>
+        </select>
+        <div id="resultadoCarnada" class="resultado-carnada">
+            👉 <strong>Carnada recomendada:</strong> Vivo (Morena mediana o grande) y señuelos de media agua.
+        </div>
+    </div>
+
+    <!-- NUEVO: LUPA / CÁMARA PARA IDENTIFICAR ESPECIE EN LA PRINCIPAL -->
+    <div class="widget-card">
+        <h3>🔍 Identificar Especie por Foto (Lupa)</h3>
+        <p style="font-size: 14px; color: #555; margin-top: 0;">Sacale una foto a tu captura con la cámara para identificarla y pasarla al registro:</p>
         
         <input type="file" id="camaraCaptura" accept="image/*" capture="environment" style="display: none;" onchange="procesarFotoIdentificacion(event)">
         
@@ -11,7 +102,106 @@
 
         <div id="vistaPreviaIdentificacion" style="margin-top: 15px; text-align: center; display: none;">
             <img id="imagenIdentificada" src="" alt="Foto de la captura" style="max-width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 10px;">
-            <p id="textoResultadoIdentificacion" style="font-size: 14px; font-weight: bold; color: #166534;"></p>
+            <p id="textoResultadoIdentificacion" style="font-size: 14px; font-weight: bold; color: #166534; margin-bottom: 10px;"></p>
             <a href="registro.html" style="display: inline-block; background: #27ae60; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px;">Ir a Registrar esta Captura 📸</a>
         </div>
     </div>
+
+    <!-- CLIMA Y CONDICIONES -->
+    <div class="widget-card">
+        <h3>🌤️ Clima y Condiciones Actuales</h3>
+        <p style="margin: 5px 0;">🌡️ <strong>Temperatura:</strong> 18°C (Parcialmente nublado)</p>
+        <p style="margin: 5px 0;">💨 <strong>Viento:</strong> 14 km/h (Sector Este)</p>
+        <p style="margin: 5px 0;">📉 <strong>Presión atmosférica:</strong> 1014 hPa (Estable)</p>
+    </div>
+
+    <!-- TABLA SOLUNAR Y PIQUE -->
+    <div class="widget-card">
+        <h3>🌙 Tabla Solunar y Estado del Pique</h3>
+        <p style="margin: 5px 0;">🌕 <strong>Fase Lunar:</strong> Cuarto Creciente</p>
+        <p style="margin: 5px 0;">⭐ <strong>Índice de Pique:</strong> Bueno (Actividad moderada a alta)</p>
+        <p style="margin: 5px 0;">⏰ <strong>Mejor horario mayor:</strong> 07:30 a 09:30 hs</p>
+    </div>
+
+    <!-- TÍTULO CON BANDERA ARGENTINA OFICIAL -->
+    <div class="section-title">
+        <span>Pesca en Argentina</span>
+        <span style="display: inline-block; width: 36px; height: 24px; border: 1px solid #bbb; background: linear-gradient(to bottom, #75aadb 33%, #ffffff 33%, #ffffff 66%, #75aadb 66%); border-radius: 4px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <span style="position: absolute; top: 8px; left: 13px; width: 8px; height: 8px; background: #f9d616; border-radius: 50%; display: inline-block;"></span>
+        </span>
+    </div>
+
+    <!-- PRÓXIMOS EVENTOS -->
+    <div class="widget-card">
+        <h3>🏆 Próximos Eventos y Fiestas</h3>
+        
+        <div class="event-item">
+            <strong>Fiesta Nacional del Dorado</strong> (Paso de la Patria, Corrientes)<br>
+            <small>📅 Agosto | Competencia de pesca con devolución.</small><br>
+            <a href="https://pasodelapatria.gob.ar" target="_blank">🔗 Más información oficial</a>
+        </div>
+        
+        <div class="event-item">
+            <strong>Fiesta Nacional del Surubí</strong> (Goya, Corrientes)<br>
+            <small>📅 Próxima edición anual | El mundial de pesca.</small><br>
+            <a href="https://libreta.goya.gob.ar" target="_blank">🔗 Más información oficial</a>
+        </div>
+
+        <div class="event-item">
+            <strong>Concurso de Pesca Variada</strong> (Mar del Plata, Buenos Aires)<br>
+            <small>📅 Temporada de costa y embarcado.</small><br>
+            <a href="https://turismo.mardelplata.gob.ar" target="_blank">🔗 Más información oficial</a>
+        </div>
+    </div>
+
+    <footer style="text-align: center; margin-top: 30px; font-size: 13px; color: #777; padding-bottom: 10px;">
+        <p><strong>C.A.T.Ser</strong> &bull; <strong>Tecnofotos</strong> | Todos los derechos reservados © 2026</p>
+    </footer>
+
+</div>
+
+<script>
+    // Base de datos completa de carnadas (Río y Mar Argentino)
+    const baseCarnadas = {
+        dorado: "👉 <strong>Carnada recomendada:</strong> Vivo (Morena mediana/grande), cascarudo o señuelos de paleta media / superficie.",
+        surubi: "👉 <strong>Carnada recomendada:</strong> Gurí, sabalito entero, paty de tamaño mediano o carnada blanca pesada al golpe.",
+        pejerrey: "👉 <strong>Carnada recomendada:</strong> Mojarra viva, dientudo desflecado, camarón o pasta / flote con línea de flote.",
+        tarucha: "👉 <strong>Carnada recomendada:</strong> Bajada de rana viva, filet de dientudo, carnada blanca o señuelos anti-gancho (superficie/media agua).",
+        boga: "👉 <strong>Carnada recomendada:</strong> Maíz fermentado, masa artesanal, corazón vacuno en cubitos o pasta dulce.",
+        pacu: "👉 <strong>Carnada recomendada:</strong> Frutos de estación (timbo, banana), maíz o masa dulce cerca de árboles inundados.",
+        pati: "👉 <strong>Carnada recomendada:</strong> Carnada blanda y olorosa (tripa de pollo, hígado o trozo de sábalo) al fondo.",
+        bagre: "👉 <strong>Carnada recomendada:</strong> Lombriz, masitas o pedazos de sábalo al ras del fondo.",
+        corvinarubia: "👉 <strong>Carnada recomendada:</strong> Langostino entero, camarón o almeja pescando desde la costa con tiro largo.",
+        corvinanegra: "👉 <strong>Carnada recomendada:</strong> Cangrejo vivo o navaja, ideal para pozones con marea creciente.",
+        lenguado: "👉 <strong>Carnada recomendada:</strong> Pejerrey vivo o filet muy fresco usando spinning o flote al acecho.",
+        pezlimon: "👉 <strong>Carnada recomendada:</strong> Embarcado con trolling o carnada viva (caballa/macha) cerca de piedras.",
+        salmon: "👉 <strong>Carnada recomendada:</strong> Embarcado profundo sobre canto rodado. Calamar, anchoa o langostino.",
+        brotola: "👉 <strong>Carnada recomendada:</strong> Pesca nocturna o en muelles con tiras de calamarete o anchoa.",
+        cazon: "👉 <strong>Carnada recomendada:</strong> Cabeza o lomo de caballa/pinto (recordar devolución obligatoria).",
+        anchoa: "👉 <strong>Carnada recomendada:</strong> Spinning costero con cucharillas pesadas o boya barrilete."
+    };
+
+    function actualizarCarnada() {
+        const select = document.getElementById('especieSelect').value;
+        const contenedor = document.getElementById('resultadoCarnada');
+        if (baseCarnadas[select]) {
+            contenedor.innerHTML = baseCarnadas[select];
+        }
+    }
+
+    function procesarFotoIdentificacion(event) {
+        const archivo = event.target.files[0];
+        if (archivo) {
+            const lector = new FileReader();
+            lector.onload = function(e) {
+                document.getElementById('imagenIdentificada').src = e.target.result;
+                document.getElementById('textoResultadoIdentificacion').innerHTML = "✨ ¡Foto capturada correctamente! Ya podés registrarla.";
+                document.getElementById('vistaPreviaIdentificacion').style.display = 'block';
+            }
+            lector.readAsDataURL(archivo);
+        }
+    }
+</script>
+
+</body>
+</html>
