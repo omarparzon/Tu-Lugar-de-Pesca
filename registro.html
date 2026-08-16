@@ -162,12 +162,11 @@
     </footer>
 </div>
 
-<!-- SCRIPTS DE FIREBASE -->
+<!-- SCRIPTS DE FIREBASE CON LA VERSIÓN ACTUALIZADA 12.17.1 -->
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-    // Configuración de tu Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyB05r0eiW8DKSIjGMcrf7RnZPnJ107f6c",
         authDomain: "tulugardepesca.firebaseapp.com",
@@ -181,7 +180,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Hacer funciones accesibles globalmente para los botones HTML
     window.guardarCaptura = async function() {
         const zona = document.getElementById('zona').value;
         const lugarPesca = document.getElementById('lugarPesca').value;
@@ -223,7 +221,7 @@
             cargarHistorial();
         } catch (e) {
             console.error("Error al guardar: ", e);
-            alert('Hubo un error al guardar la captura.');
+            alert('Hubo un error al guardar: ' + e.message);
         }
     }
 
@@ -270,7 +268,6 @@
         }
     }
 
-    // Cargar al abrir la página
     cargarHistorial();
 </script>
 
