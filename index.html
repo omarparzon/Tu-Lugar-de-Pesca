@@ -5,49 +5,171 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tu Lugar de Pesca - Menú Principal</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; text-align: center; }
-        .card { background: white; padding: 20px; margin: 10px auto; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 500px; }
-        select { width: 100%; padding: 10px; margin-top: 10px; border-radius: 5px; }
-        a { text-decoration: none; color: #0066cc; font-weight: bold; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-image: url('https://images.unsplash.com/photo-1616340729503-9a79a2ebc8fb?q=80&w=1920');
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            background-attachment: fixed; 
+        }
+
+        .app-container { max-width: 650px; margin: 0 auto; padding: 10px; }
+
+        .header-card, .menu-card, .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .logo-badge { font-size: 45px; margin-bottom: 5px; }
+
+        h1 { color: #0066cc; margin: 0; font-size: 24px; text-transform: uppercase; }
+        .slogan { font-size: 14px; color: #555; font-weight: bold; margin-top: 5px; }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .nav-button {
+            background: #0066cc;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background 0.3s;
+        }
+        .nav-button:hover { background: #004d99; }
+        .nav-button span { font-size: 24px; }
+
+        .full-width-btn {
+            background: #27ae60;
+            grid-column: span 2;
+        }
+        .full-width-btn:hover { background: #219653; }
+
+        .form-group { margin-top: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #444; }
+        select { 
+            width: 100%; padding: 12px; box-sizing: border-box; 
+            border: 1px solid #ccc; border-radius: 8px; 
+            background: #fff; font-size: 16px; 
+        }
+
+        footer { 
+            text-align: center; margin-top: 30px; font-size: 13px; 
+            color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            padding-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h1>🐟 Tu Lugar de Pesca</h1>
-    <p>La comunidad de pescadores deportivos</p>
-    <a href="registro.html">📸 Registrar Captura</a> | 
-    <a href="clima.html">🌤️ Ver Clima</a>
+<div class="app-container">
+    <div class="header-card">
+        <div class="logo-badge">🐟 🌊 🎣</div>
+        <h1>Tu Lugar de Pesca</h1>
+        <div class="slogan">La comunidad de pescadores deportivos</div>
+    </div>
+
+    <!-- BOTONES DE NAVEGACIÓN -->
+    <div class="nav-grid">
+        <a href="registro.html" class="nav-button">
+            <span>📸</span> Registrar Captura
+        </a>
+        <a href="clima.html" class="nav-button">
+            <span>🌤️</span> Ver Clima
+        </a>
+        <a href="https://maps.google.com" target="_blank" class="nav-button full-width-btn">
+            <span>🚗</span> Consultar Estado de Rutas y Tráfico en Vivo (Google Maps)
+        </a>
+    </div>
+
+    <!-- RECOMENDADOR DE CARNADA CON TODAS LAS ESPECIES -->
+    <div class="feature-card">
+        <div style="font-size: 24px; margin-bottom: 5px;">🎯</div>
+        <h3 style="margin-top: 0; color: #333;">¿Qué vas a pescar? (Recomendador)</h3>
+        <div class="form-group">
+            <label for="especie">Seleccioná la especie objetivo:</label>
+            <select id="especie" onchange="mostrarConsejo()">
+                <!-- RÍO Y LAGUNA -->
+                <optgroup label="Agua Dulce (Río / Laguna)">
+                    <option value="Dorado">Dorado</option>
+                    <option value="Surubí">Surubí</option>
+                    <option value="Pejerrey">Pejerrey</option>
+                    <option value="Tararira">Tararira (Tarucha)</option>
+                    <option value="Boga">Boga</option>
+                    <option value="Pacú">Pacú</option>
+                    <option value="Patí">Patí</option>
+                    <option value="Bagre">Bagre</option>
+                </optgroup>
+                <!-- MAR -->
+                <optgroup label="Mar Argentino">
+                    <option value="Corvina Rubia">Corvina Rubia</option>
+                    <option value="Corvina Negra">Corvina Negra</option>
+                    <option value="Lenguado">Lenguado</option>
+                    <option value="Pez Limón">Pez Limón</option>
+                    <option value="Salmón de Mar">Salmón de Mar</option>
+                    <option value="Brótola">Brótola</option>
+                    <option value="Cazón">Cazón</option>
+                    <option value="Anchoa de Banco">Anchoa de Banco</option>
+                </optgroup>
+            </select>
+        </div>
+        <div id="consejoCarnada" style="margin-top: 15px; padding: 10px; background: #eef2f7; border-radius: 8px; font-size: 14px; color: #333; text-align: left;">
+            💡 <strong>Sugerencia:</strong> Seleccioná una especie para ver el pique y la carnada ideal.
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>C.A.T.Ser</strong> &bull; <strong>Tecnofotos</strong> | Todos los derechos reservados © 2026</p>
+    </footer>
 </div>
 
-<div class="card">
-    <h3>🎣 ¿Qué vas a pescar?</h3>
-    <label for="especie">Seleccioná la especie objetivo:</label>
-    <select id="especie">
-        <!-- RÍO Y LAGUNA -->
-        <optgroup label="Agua Dulce (Río/Laguna)">
-            <option value="Dorado">Dorado</option>
-            <option value="Surubí">Surubí</option>
-            <option value="Pejerrey">Pejerrey</option>
-            <option value="Tararira">Tararira (Tarucha)</option>
-            <option value="Boga">Boga</option>
-            <option value="Pacú">Pacú</option>
-            <option value="Patí">Patí</option>
-            <option value="Bagre">Bagre</option>
-        </optgroup>
-        <!-- MAR -->
-        <optgroup label="Mar Argentino">
-            <option value="Corvina Rubia">Corvina Rubia</option>
-            <option value="Corvina Negra">Corvina Negra</option>
-            <option value="Lenguado">Lenguado</option>
-            <option value="Pez Limón">Pez Limón</option>
-            <option value="Salmón de Mar">Salmón de Mar</option>
-            <option value="Brótola">Brótola</option>
-            <option value="Cazón">Cazón</option>
-            <option value="Anchoa de Banco">Anchoa de Banco</option>
-        </optgroup>
-    </select>
-</div>
+<script>
+    function mostrarConsejo() {
+        const especie = document.getElementById('especie').value;
+        const caja = document.getElementById('consejoCarnada');
+        
+        let consejo = "";
+        switch(especie) {
+            // Río
+            case "Dorado": consejo = "💡 <strong>Dorado:</strong> Usar carnada viva (morena, sabalito) o señuelos artificiales de profundidad/superficie en correderas."; break;
+            case "Surubí": consejo = "💡 <strong>Surubí:</strong> Carnada pesada al fondo (múgil, anguila, amarillo grande) en pozones hondos de noche."; break;
+            case "Pejerrey": consejo = "💡 <strong>Pejerrey:</strong> Líneas de flote con brazoladas cortas/medias. Carnada: mojarra viva, dientepudo o pasta."; break;
+            case "Tararira": consejo = "💡 <strong>Tararira:</strong> Carnada blanca (filet de sábalo) o ranas/senjuelos anti-gancho en zonas de mucha vegetación."; break;
+            case "Boga": consejo = "💡 <strong>Boga:</strong> Maíz fermentado, masa, pasta o corazón vacuno en zonas correntosas con piedra."; break;
+            case "Pacú": consejo = "💡 <strong>Pacú:</strong> Frutas de estación (fruto de timbó, banana, maíz) cerca de árboles inundados."; break;
+            case "Patí": consejo = "💡 <strong>Patí:</strong> Carnada blanda y olorosa (tripa de pollo, hígado) pescando bien al fondo."; break;
+            case "Bagre": consejo = "💡 <strong>Bagre:</strong> Lombriz, pedazos de sábalo o masitas al ras del fondo."; break;
+            // Mar
+            case "Corvina Rubia": consejo = "💡 <strong>Corvina Rubia:</strong> Langostino entero, camarón o almeja pescando desde la costa con tiro largo."; break;
+            case "Corvina Negra": consejo = "💡 <strong>Corvina Negra:</strong> Cangrejo vivo o navaja, ideal para pescar en pozones con marea creciente."; break;
+            case "Lenguado": consejo = "💡 <strong>Lenguado:</strong> Pesca con spinning o flote usando pejerrey vivo o filet bien fresco como carnada (pesca al acecho)."; break;
+            case "Pez Limón": consejo = "💡 <strong>Pez Limón:</strong> Embarcado con trolling o vivo (caballa/macha) cerca de piedras o accidentes costeros."; break;
+            case "Salmón de Mar": consejo = "💡 <strong>Salmón de Mar:</strong> Embarcado profundo sobre canto rodado. Carnada: calamar, anchoa o langostino."; break;
+            case "Brótola": consejo = "💡 <strong>Brótola:</strong> Pesca de fondo nocturna o en muelles. Carnada: tiras de calamarete o anchoa."; break;
+            case "Cazón": consejo = "💡 <strong>Cazón:</strong> Pesca deportiva con devolución obligatoria. Carnada: cabeza o lomo de caballa/pinto."; break;
+            case "Anchoa de Banco": consejo = "💡 <strong>Anchoa de Banco:</strong> Spinning costero con cucharillas pesadas o carnada blanca a flote con boya barrilete."; break;
+            default: consejo = "💡 Seleccioná una especie para ver consejos.";
+        }
+        caja.innerHTML = consejo;
+    }
+</script>
 
 </body>
 </html>
