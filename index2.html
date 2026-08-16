@@ -253,19 +253,28 @@
                     const fotoComprimida = canvas.toDataURL('image/jpeg', 0.7);
 
                     // Mostramos la vista previa de la foto optimizada
-                    document.getElementById('imagenIdentificada').src = fotoComprimida;
+                    const imgElement = document.getElementById('imagenIdentificada');
+                    if (imgElement) {
+                        imgElement.src = fotoComprimida;
+                    }
                     
                     // Seleccionamos una especie al azar de la base de datos para mostrar la ficha completa
                     const especieAleatoria = fichasEspecies[Math.floor(Math.random() * fichasEspecies.length)];
 
-                    document.getElementById('textoResultadoIdentificacion').innerHTML = `
-                        <strong>🐟 Especie Identificada:</strong> ${especieAleatoria.comun}<br>
-                        <strong>🔬 Nombre Científico:</strong> <em>${especieAleatoria.cientifico}</em><br><br>
-                        <strong>🍳 Receta sugerida de cocina:</strong><br>
-                        ${especieAleatoria.receta}
-                    `;
+                    const textoResultado = document.getElementById('textoResultadoIdentificacion');
+                    if (textoResultado) {
+                        textoResultado.innerHTML = `
+                            <strong>🐟 Especie Identificada:</strong> ${especieAleatoria.comun}<br>
+                            <strong>🔬 Nombre Científico:</strong> <em>${especieAleatoria.cientifico}</em><br><br>
+                            <strong>🍳 Receta sugerida de cocina:</strong><br>
+                            ${especieAleatoria.receta}
+                        `;
+                    }
                     
-                    document.getElementById('vistaPreviaIdentificacion').style.display = 'block';
+                    const contenedorVista = document.getElementById('vistaPreviaIdentificacion');
+                    if (contenedorVista) {
+                        contenedorVista.style.display = 'block';
+                    }
                 }
                 img.src = e.target.result;
             }
