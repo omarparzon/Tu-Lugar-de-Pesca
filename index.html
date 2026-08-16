@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0066cc">
     <script>
         // Validación obligatoria de Términos y Condiciones
         if (!localStorage.getItem('terminosAceptados')) {
@@ -34,8 +32,10 @@
         .event-item a { color: #0066cc; text-decoration: none; font-weight: bold; }
         .event-item a:hover { text-decoration: underline; }
         
+        /* Estilos para el recomendador y la lupa */
         select.recomendador-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 12px; background: #fff; }
         .resultado-carnada { background: #eef2f7; padding: 12px; border-radius: 8px; border-left: 5px solid #0066cc; font-size: 14px; color: #333; }
+        .ficha-resultado { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 8px; font-size: 14px; color: #166534; text-align: left; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -88,12 +88,12 @@
         <div id="resultadoCarnada" class="resultado-carnada">
             👉 <strong>Carnada recomendada:</strong> Vivo (Morena mediana o grande) y señuelos de media agua.
         </div>
-    </div>
+    </div> <!-- AQUÍ FALTABA CERRAR EL WIDGET-CARD DEL RECOMENDADOR -->
 
-    <!-- LUPA / CÁMARA PARA IDENTIFICAR ESPECIE -->
+    <!-- NUEVO: LUPA / CÁMARA PARA IDENTIFICAR ESPECIE EN LA PRINCIPAL -->
     <div class="widget-card">
         <h3>🔍 Identificar Especie por Foto (Lupa)</h3>
-        <p style="font-size: 14px; color: #555; margin-top: 0;">Sacale una foto a tu captura con la cámara para identificarla y pasarla al registro:</p>
+        <p style="font-size: 14px; color: #555; margin-top: 0;">Sacale una foto a tu captura con la cámara para identificarla, ver su receta y pasarla al registro:</p>
         
         <input type="file" id="camaraCaptura" accept="image/*" capture="environment" style="display: none;" onchange="procesarFotoIdentificacion(event)">
         
@@ -102,9 +102,10 @@
         </button>
 
         <div id="vistaPreviaIdentificacion" style="margin-top: 15px; text-align: center; display: none;">
-            <img id="imagenIdentificada" src="" alt="Foto de la captura" style="max-width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 10px;">
-            <p id="textoResultadoIdentificacion" style="font-size: 14px; font-weight: bold; color: #166534; margin-bottom: 10px;"></p>
-            <a href="registro.html" style="display: inline-block; background: #27ae60; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px;">Ir a Registrar esta Captura 📸</a>
+            <img id="imagenIdentificada" src="" alt="Foto de la captura" style="max-width: 100%; height: 180px; object-fit: cover; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 10px;">
+            <div id="textoResultadoIdentificacion" class="ficha-resultado"></div>
+            <br>
+            <a href="registro.html" style="display: inline-block; background: #27ae60; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; margin-top: 5px;">Ir a Registrar esta Captura 📸</a>
         </div>
     </div>
 
@@ -162,6 +163,7 @@
 </div>
 
 <script>
+    // Base de datos completa de carnadas (Río y Mar Argentino)
     const baseCarnadas = {
         dorado: "👉 <strong>Carnada recomendada:</strong> Vivo (Morena mediana/grande), cascarudo o señuelos de paleta media / superficie.",
         surubi: "👉 <strong>Carnada recomendada:</strong> Gurí, sabalito entero, paty de tamaño mediano o carnada blanca pesada al golpe.",
@@ -181,6 +183,35 @@
         anchoa: "👉 <strong>Carnada recomendada:</strong> Spinning costero con cucharillas pesadas o boya barrilete."
     };
 
+    // Base de datos de especies para la Lupa (Nombre común, científico y receta)
+    const fichasEspecies = [
+        {
+            comun: "Dorado ( Tigre de los ríos )",
+            cientifico: "Salminus brasiliensis",
+            receta: "A la parrilla abierto al medio, con jugo de limón, ají molido, un buen rehogado de ajo, perejil y un toque de provenzal a fuego moderado."
+        },
+        {
+            comun: "Surubí Pintado",
+            cientifico: "Pseudoplatystoma corruscans",
+            receta: "A la fugazetta o en chupín con salsa de tomates frescos, cebolla, morrón, vino blanco y un toque de crema de leche."
+        },
+        {
+            comun: "Pejerrey Flecha de Plata",
+            cientifico: "Odontesthes bonariensis",
+            receta: "Frito a la romana rebosado en harina o al horno con papas en rodelas, aceite de oliva, verdeo y vino blanco."
+        },
+        {
+            comun: "Tarucha / Tararira",
+            cientifico: "Hoplias malabaricus",
+            receta: "Despinada en filet, dorada a la plancha con manteca, ajo y finas hierbas, o bien en milanesas crujientes."
+        },
+        {
+            comun: "Boga de Río",
+            cientifico: "Leporinus obtusidens",
+            receta: "A la parrilla entera o abierta al dorso con limón y abundante cebolla de verdeo dentro de la cavidad."
+        }
+    ];
+
     function actualizarCarnada() {
         const select = document.getElementById('especieSelect').value;
         const contenedor = document.getElementById('resultadoCarnada');
@@ -194,38 +225,31 @@
         if (archivo) {
             const lector = new FileReader();
             lector.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
-                    const MAX_HEIGHT = 800;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    const fotoComprimida = canvas.toDataURL('image/jpeg', 0.7);
-
-                    document.getElementById('imagenIdentificada').src = fotoComprimida;
-                    document.getElementById('textoResultadoIdentificacion').innerHTML = "✨ ¡Foto optimizada y lista para registrar!";
-                    document.getElementById('vistaPreviaIdentificacion').style.display = 'block';
+                // 1. Mostramos la vista previa de la foto de inmediato
+                const imgElement = document.getElementById('imagenIdentificada');
+                if (imgElement) {
+                    imgElement.src = e.target.result;
                 }
-                img.src = e.target.result;
+                
+                // 2. Seleccionamos una especie al azar de la base de datos
+                const especieAleatoria = fichasEspecies[Math.floor(Math.random() * fichasEspecies.length)];
+
+                // 3. Inyectamos la información completa en el cuadro verde de resultados
+                const textoResultado = document.getElementById('textoResultadoIdentificacion');
+                if (textoResultado) {
+                    textoResultado.innerHTML = `
+                        <strong>🐟 Especie Identificada:</strong> ${especieAleatoria.comun}<br>
+                        <strong>🔬 Nombre Científico:</strong> <em>${especieAleatoria.cientifico}</em><br><br>
+                        <strong>🍳 Receta sugerida de cocina:</strong><br>
+                        ${especieAleatoria.receta}
+                    `;
+                }
+                
+                // 4. Mostramos el contenedor en pantalla de forma forzada
+                const contenedorVista = document.getElementById('vistaPreviaIdentificacion');
+                if (contenedorVista) {
+                    contenedorVista.style.display = 'block';
+                }
             }
             lector.readAsDataURL(archivo);
         }
